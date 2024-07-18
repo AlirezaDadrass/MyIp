@@ -1,7 +1,17 @@
-﻿namespace MyIp.Services
+﻿using MyIp.Controllers;
+using Newtonsoft.Json;
+
+namespace MyIp.Services
 {
-    public class TimedHostedService(IpService ipService) : BackgroundService
+    public class TimedHostedService : BackgroundService
     {
+        public TimedHostedService(IpService ipService)
+        {
+            IpService = ipService;
+        }
+
+        public IpService IpService { get; }
+
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             using var timer = new PeriodicTimer(TimeSpan.FromSeconds(30));
@@ -10,10 +20,10 @@
             {
                 try
                 {
-                    var ip = await ipService.GetIp();
+                    var ip = JsonConvert.DeserializeObject<IpResponse>(await IpService.GetIp());
 
                     var client = new HttpClient();
-                    var request = new HttpRequestMessage(HttpMethod.Put, $"https://188.213.65.229:50000/api/ip?ip={ip}");
+                    var request = new HttpRequestMessage(HttpMethod.Put, $"http://188.213.65.229:5001/api/ip?ip={ip?.Ip}");
                     var response = await client.SendAsync(request);
                     response.EnsureSuccessStatusCode();
                 }

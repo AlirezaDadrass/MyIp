@@ -6,7 +6,7 @@ namespace ShowIp.Controllers
     [Route("api/ip")]
     public class HomeController : ControllerBase
     {
-        private string _ip = "";
+        private static string _ip = "";
 
         [HttpGet]
         public string Get()
